@@ -7,14 +7,13 @@ import LoginModal from './components/LoginModal';
 import Profile from './components/Profile';
 import SeniorsPage from './components/SeniorsPage.jsx';
 import CalendarPage from './components/CalendarPage.jsx';
-import Task from './components/TaskMananger/Task.jsx'; // Task Manager with Grade & Attendance
-import ChatbotHub from './components/ChatbotHub.jsx'; // Integrated Chatbot Hub
-import StudyMaterials from './components/StudyMaterials.jsx'; // Study Materials System
+import Task from './components/TaskMananger/Task.jsx';
+import ChatbotHub from './components/ChatbotHub.jsx'; 
+import StudyMaterials from './components/StudyMaterials.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const [activeSection, setActiveSection] = useState(() => {
-    // Initialize from history state -> location.hash -> default 'Home'
     try {
       const stateSection = window.history.state && window.history.state.section;
       if (stateSection) return stateSection;
@@ -27,7 +26,7 @@ function App() {
   const [userData, setUserData] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
 
-  // Team members
+  
   const teamMembers = [
     { name: 'Bhaskara', linkedin: 'https://www.linkedin.com/in/bhaskara-88aa76322/', github: 'https://github.com/bhaskara05' },
     { name: 'Khushal L', linkedin: 'https://linkedin.com/khushal-l', github: 'https://github.com/Khushal1513' },

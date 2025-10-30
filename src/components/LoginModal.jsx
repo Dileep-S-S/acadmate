@@ -40,78 +40,57 @@ export default function LoginModal({ isOpen, onClose, onLogin }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (isRegistering) {
-      // Validation (same as before)
-      for (const key in formData) {
-        if (Object.prototype.hasOwnProperty.call(formData, key) && String(formData[key]).trim() === '') {
-          setError({ message: 'Please fill in all required fields.', field: key });
-          return;
-        }
-      }
-      if (!formData.usn.toUpperCase().includes('JST')) {
-        setError({ message: 'Invalid USN. It must contain "JST".', field: 'usn' });
+  e.preventDefault();
+  
+  if (isRegistering) {
+    // Registration logic
+    for (const key in formData) {
+      if (Object.prototype.hasOwnProperty.call(formData, key) && String(formData[key]).trim() === '') {
+        setError({ message: 'Please fill in all required fields.', field: key });
         return;
       }
-      if (!formData.email.toLowerCase().endsWith('@gmail.com')) {
-        setError({ message: 'Please provide a valid @gmail.com email address.', field: 'email' });
-        return;
-      }
-      const passwordError = validatePassword(formData.password);
-      if (passwordError) {
-        setError({ message: passwordError, field: 'password' });
-        return;
-      }
-      if (formData.password !== formData.confirmPassword) {
-        setError({ message: 'Passwords do not match.', field: 'confirmPassword' });
-        return;
-      }
+    }
+    if (!formData.usn.toUpperCase().includes('JST')) {
+      setError({ message: 'Invalid USN. It must contain "JST".', field: 'usn' });
+      return;
+    }
+    if (!formData.email.toLowerCase().endsWith('@gmail.com')) {
+      setError({ message: 'Please provide a valid @gmail.com email address.', field: 'email' });
+      return;
+    }
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      setError({ message: passwordError, field: 'password' });
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError({ message: 'Passwords do not match.', field: 'confirmPassword' });
+      return;
+    }
 
-      try {
-        // ✅ Firebase Registration
-        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-        const user = userCredential.user;
+    try {
+      // ✅ Firebase Registration
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
 
-        alert('Registration successful! You can now log in.');
-        setIsRegistering(false);
-      } catch (err) {
-        console.error(err);
-        setError({ message: err.message || 'Registration failed.', field: '' });
-      }
+      alert('Registration successful! You can now log in.');
+      setIsRegistering(false);
+    } catch (err) {
+      console.error(err);
+      setError({ message: err.message || 'Registration failed.', field: '' });
+    }
 
-    } else {
-      // ✅ Firebase Login
-      if (!formData.email || !formData.password) {
-        setError({ message: 'Please enter both email and password.', field: 'email' });
-        return;
-      }
-      
-      // API call
-      const { confirmPassword, ...submissionData } = formData;
+  } else {
+    // ✅ Login logic (simplified)
+    if (!formData.email || !formData.password) {
+      setError({ message: 'Please enter both email and password.', field: 'email' });
+      return;
+    }
 
-      try {
-        const response = await fetch('/api/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(submissionData),
-        });
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
 
-        const result = await response.json();
-
-        if (!response.ok) {
-          setError({ message: result.message || 'An error occurred.', field: '' });
-        } else {
-          alert('Registration Successful! A confirmation email has been sent.');
-          onClose();
-        }
-      } catch (networkError) {
-        setError({ message: 'Could not connect to the server. Please try again later.', field: '' });
-      }
-    } else {
-      // Login logic (simplified)
       onLogin({
         username: 'John Doe',
         email: formData.email,
@@ -121,8 +100,13 @@ export default function LoginModal({ isOpen, onClose, onLogin }) {
         section: 'A'
       });
       onClose();
+    } catch (err) {
+      console.error(err);
+      setError({ message: 'Login failed. Please check your credentials.', field: '' });
     }
-  };
+  }
+};
+
 
   const handleInputChange = (e) => {
     setFormData({
